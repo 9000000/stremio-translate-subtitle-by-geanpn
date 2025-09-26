@@ -50,6 +50,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/stremio-translate-subtitle:${{ env.TAG }}
-            ghcr.io/${{ github.repository_owner }}/stremio-translate-subtitle:latest
+            ghcr.io/${{ github.repository_owner }}/stremio-translate-subtitle-by-geanpn:${{ env.TAG }}
+            ghcr.io/${{ github.repository_owner }}/stremio-translate-subtitle-by-geanpn:latest
 
