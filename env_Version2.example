@@ -1,0 +1,23 @@
+# Server Configuration
+PORT=3000
+ADDRESS=0.0.0.0
+BASE_URL=http://localhost:3000
+
+# Database Configuration
+DB_TYPE=sqlite
+SQLITE_PATH=./data/database.db
+
+# Translation Provider
+PROVIDER=Google Translate
+# For ChatGPT API:
+# PROVIDER=ChatGPT API
+# API_KEY=your_openai_api_key
+# BASE_URL=https://api.openai.com/v1/responses
+# MODEL_NAME=gpt-4
+
+# OpenSubtitles Configuration (if needed)
+# OPENSUBTITLES_USER=
+# OPENSUBTITLES_PASS=
+
+# Stremio Store Publishing (set to TRUE only in production)
+PUBLISH_IN_STREMIO_STORE=FALSE
