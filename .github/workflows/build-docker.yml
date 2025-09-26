@@ -42,12 +42,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Log in to Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Build and push Docker image to both GHCR and Docker Hub
       - name: Build and push Docker image
@@ -58,5 +52,4 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/stremio-translate-subtitle:${{ env.TAG }}
             ghcr.io/${{ github.repository_owner }}/stremio-translate-subtitle:latest
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/stremio-translate-subtitle:${{ env.TAG }}
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/stremio-translate-subtitle:latest
+
