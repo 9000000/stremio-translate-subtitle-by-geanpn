@@ -95,16 +95,19 @@ const getsubtitles = async (
 
     // 2. If targetLanguage subtitle not found, try to find an English subtitle
     const englishSubtitle = findSubtitle('en');
-    if (englishSubtitle) {
-      
-      return [{ url: englishSubtitle.url, lang: englishSubtitle.lang }];
-    }
+if (englishSubtitle) {
+  return [{ url: englishSubtitle.url, lang: englishSubtitle.lang }];
+}
 
-    // 3. If no English subtitle found, return the first available subtitle of any language
-    
-    
-    return [{ url: firstAvailableSubtitle.url, lang: firstAvailableSubtitle.lang }];
+// 3. If no English subtitle found, return the first available subtitle of any language
+if (subtitles.length > 0) {
+  const firstAvailableSubtitle = subtitles[0];
+  return [{ url: firstAvailableSubtitle.url, lang: firstAvailableSubtitle.lang }];
+}
 
+// 4. If no subtitles found at all, return null
+return null;
+    
   } catch (error) {
     console.error("Subtitle URL error:", error);
     throw error;
