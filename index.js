@@ -309,7 +309,7 @@ function parseId(id) {
   return { type: "unknown", season: 0, episode: 0 };
 }
 
-if (process.env.PUBLISH_IN_SREMIO_STORE == "TRUE") {
+if (process.env.PUBLISH_IN_STREMIO_STORE == "TRUE") {
   publishToCentral(`${BASE_URL}/manifest.json`);
 }
 
