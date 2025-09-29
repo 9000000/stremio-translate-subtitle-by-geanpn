@@ -40,10 +40,19 @@ async function translateTextWithRetry(
         break;
       }
       case "ChatGPT API": {
-        const openai = new OpenAI({
-          apiKey: apikey,
-          baseURL: base_url,
-        });
+  // Remove trailing /chat/completions if present in base_url
+  let cleanBaseUrl = base_url;
+  if (cleanBaseUrl.endsWith('/chat/completions')) {
+    cleanBaseUrl = cleanBaseUrl.replace(/\/chat\/completions$/, '');
+  }
+  if (cleanBaseUrl.endsWith('/responses')) {
+    cleanBaseUrl = cleanBaseUrl.replace(/\/responses$/, '');
+  }
+  
+  const openai = new OpenAI({
+    apiKey: apikey,
+    baseURL: cleanBaseUrl,
+  });
         const jsonInput = {
           texts: texts.map((text, index) => ({ index, text })),
         };
