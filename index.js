@@ -12,15 +12,17 @@ const baseLanguages = require("./langs/base.lang.json");
 const isoCodeMapping = require("./langs/iso_code_mapping.json");
 require("dotenv").config();
 
+// Lấy BASE_URL từ environment variables
+const BASE_URL = process.env.BASE_URL || `http://${process.env.ADDRESS || 'localhost'}:${process.env.PORT || 3000}`;
+
 function generateSubtitleUrl(
   targetLanguage,
   imdbid,
   season,
   episode,
-  provider,
-  baseUrl = process.env.BASE_URL
+  provider
 ) {
-  return `${baseUrl}/subtitles/${provider}/${targetLanguage}/${imdbid}/season${season}/${imdbid}-translated-${episode}-1.srt`;
+  return `${BASE_URL}/subtitles/${provider}/${targetLanguage}/${imdbid}/season${season}/${imdbid}-translated-${episode}-1.srt`;
 }
 
 const builder = new addonBuilder({
@@ -139,27 +141,19 @@ builder.defineSubtitlesHandler(async function (args) {
     );
 
     if (existingSubtitle.length > 0) {
-      console.log(
-        "Subtitle found in database:",
-        generateSubtitleUrl(
-          targetLanguage,
-          imdbid,
-          season,
-          episode,
-          config.provider
-        )
+      const subtitleUrl = generateSubtitleUrl(
+        targetLanguage,
+        imdbid,
+        season,
+        episode,
+        config.provider
       );
+      console.log("Subtitle found in database:", subtitleUrl);
       return Promise.resolve({
         subtitles: [
           {
             id: `${imdbid}-subtitle`,
-            url: generateSubtitleUrl(
-              targetLanguage,
-              imdbid,
-              season,
-              episode,
-              config.provider
-            ),
+            url: subtitleUrl,
             lang: `${targetLanguage}-translated`,
           },
         ],
@@ -214,7 +208,7 @@ builder.defineSubtitlesHandler(async function (args) {
         type,
         season,
         episode,
-        foundSubtitle.url.replace(`${process.env.BASE_URL}/`, ""),
+        foundSubtitle.url.replace(`${BASE_URL}/`, ""),
         targetLanguage
       );
       return Promise.resolve({
@@ -243,7 +237,7 @@ builder.defineSubtitlesHandler(async function (args) {
 
     // 3. Process and translate subtitles
     translationQueue.push({
-      subs: [foundSubtitle], // Pass the found subtitle to the queue
+      subs: [foundSubtitle],
       imdbid: imdbid,
       season: season,
       episode: episode,
@@ -254,29 +248,21 @@ builder.defineSubtitlesHandler(async function (args) {
       model_name: config.model_name ?? "gpt-4o-mini",
     });
 
-    console.log(
-      "Subtitles processed",
-      generateSubtitleUrl(
-        targetLanguage,
-        imdbid,
-        season,
-        episode,
-        config.provider
-      )
+    const subtitleUrl = generateSubtitleUrl(
+      targetLanguage,
+      imdbid,
+      season,
+      episode,
+      config.provider
     );
+    console.log("Subtitles processed", subtitleUrl);
 
     await connection.addsubtitle(
       imdbid,
       type,
       season,
       episode,
-      generateSubtitleUrl(
-        targetLanguage,
-        imdbid,
-        season,
-        episode,
-        config.provider
-      ).replace(`${process.env.BASE_URL}/`, ""),
+      subtitleUrl.replace(`${BASE_URL}/`, ""),
       targetLanguage
     );
 
@@ -284,13 +270,7 @@ builder.defineSubtitlesHandler(async function (args) {
       subtitles: [
         {
           id: `${imdbid}-subtitle`,
-          url: generateSubtitleUrl(
-            targetLanguage,
-            imdbid,
-            season,
-            episode,
-            config.provider
-          ),
+          url: subtitleUrl,
           lang: `${targetLanguage}-translated`,
         },
       ],
@@ -315,7 +295,6 @@ function parseId(id) {
       return { type: "movie", season: 1, episode: 1 };
     }
   } else if (id.startsWith("dcool-")) {
-    // New format: dcool-tomorrow-with-you::tomorrow-with-you-episode-1
     const match = id.match(/dcool-(.+)::(.+)-episode-(\d+)/);
     if (match) {
       const [, , title, episode] = match;
@@ -323,18 +302,15 @@ function parseId(id) {
         type: "series",
         title: title,
         episode: Number(episode),
-        season: 1, // Assuming season 1 for this format
+        season: 1,
       };
     }
   }
   return { type: "unknown", season: 0, episode: 0 };
 }
 
-// Comment out this line for local execution, uncomment for production deployment
-// Cannot publish to central locally as there is no public IP, so it won't show up in the Stremio store
-
 if (process.env.PUBLISH_IN_SREMIO_STORE == "TRUE") {
-  publishToCentral(`http://${process.env.ADDRESS}/manifest.json`);
+  publishToCentral(`${BASE_URL}/manifest.json`);
 }
 
 const port = process.env.PORT || 3000;
@@ -352,6 +328,7 @@ serveHTTP(builder.getInterface(), {
       "Manifest available:",
       `http://${address}:${port}/manifest.json`
     );
+    console.log("BASE_URL:", BASE_URL);
   })
   .catch((error) => {
     console.error("Server startup error:", error);
