@@ -15,17 +15,53 @@ require("dotenv").config();
 
 // Helper function to get language display name
 function getLanguageDisplayName(isoCode) {
-  return languageDisplayNames[isoCode] || isoCode;
+  if (!isoCode) {
+    console.warn('getLanguageDisplayName called with empty isoCode');
+    return 'Unknown';
+  }
+  
+  // Kiểm tra trong languageDisplayNames với mã gốc
+  if (languageDisplayNames[isoCode]) {
+    return languageDisplayNames[isoCode];
+  }
+  
+  // Nếu là mã 3 chữ cái, thử convert sang 2 chữ cái rồi tìm
+  if (isoCode.length === 3 && isoCodeMapping[isoCode]) {
+    const twoLetterCode = isoCodeMapping[isoCode];
+    if (languageDisplayNames[twoLetterCode]) {
+      return languageDisplayNames[twoLetterCode];
+    }
+  }
+  
+  // Nếu là mã 2 chữ cái, tìm mã 3 chữ cái tương ứng
+  if (isoCode.length === 2) {
+    for (const [threeLetterCode, twoLetterCode] of Object.entries(isoCodeMapping)) {
+      if (twoLetterCode === isoCode && languageDisplayNames[isoCode]) {
+        return languageDisplayNames[isoCode];
+      }
+    }
+  }
+  
+  // Fallback: capitalize first letter
+  console.warn(`No display name found for language code: ${isoCode}`);
+  return isoCode.charAt(0).toUpperCase() + isoCode.slice(1);
 }
 
 // Helper function to convert ISO code to 3-letter format for better Stremio compatibility
 function getStremioLanguageCode(isoCode) {
-  // Reverse mapping: tìm mã 3 chữ cái từ mã 2 chữ cái
+  // Nếu đã là mã 3 chữ cái, return luôn
+  if (isoCode.length === 3) {
+    return isoCode;
+  }
+  
+  // Tìm mã 3 chữ cái từ mã 2 chữ cái
   for (const [threeLetterCode, twoLetterCode] of Object.entries(isoCodeMapping)) {
     if (twoLetterCode === isoCode) {
       return threeLetterCode;
     }
   }
+  
+  // Nếu không tìm thấy, return mã gốc
   return isoCode;
 }
 
@@ -212,9 +248,9 @@ builder.defineSubtitlesHandler(async function (args) {
       return Promise.resolve({
         subtitles: [
           {
-            id: stremioLanguageCode, // Dùng mã 3 chữ cái
+            id: stremioLanguageCode,
             url: subtitleUrl,
-            lang: displayLanguageName, // Tên ngôn ngữ hiển thị đẹp
+            lang: displayLanguageName,
           },
         ],
       });
