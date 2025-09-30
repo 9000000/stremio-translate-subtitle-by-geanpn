@@ -10,7 +10,13 @@ const { createOrUpdateMessageSub } = require("./subtitles");
 const translationQueue = require("./queues/translationQueue");
 const baseLanguages = require("./langs/base.lang.json");
 const isoCodeMapping = require("./langs/iso_code_mapping.json");
+const languageDisplayNames = require("./langs/language_display_names.json");
 require("dotenv").config();
+
+// Helper function to get language display name
+function getLanguageDisplayName(isoCode) {
+  return languageDisplayNames[isoCode] || isoCode;
+}
 
 // Tách riêng BASE_URL cho subtitle và server
 function getBaseUrl() {
@@ -344,7 +350,16 @@ function parseId(id) {
 }
 
 if (process.env.PUBLISH_IN_STREMIO_STORE == "TRUE") {
-  publishToCentral(`${BASE_URL}/manifest.json`);
+  // Dùng SUBTITLE_BASE_URL nếu có, không thì dùng BASE_URL
+  const manifestUrl = process.env.SUBTITLE_BASE_URL 
+    ? `${SUBTITLE_BASE_URL}/manifest.json`
+    : `${BASE_URL}/manifest.json`;
+  
+  console.log("Publishing to Stremio Central:", manifestUrl);
+  publishToCentral(manifestUrl).catch((error) => {
+    console.error("Failed to publish to Stremio Central:", error);
+    console.error("Make sure your manifest URL is publicly accessible");
+  });
 }
 
 const port = process.env.PORT || 3000;
