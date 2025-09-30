@@ -12,8 +12,37 @@ const baseLanguages = require("./langs/base.lang.json");
 const isoCodeMapping = require("./langs/iso_code_mapping.json");
 require("dotenv").config();
 
-// Lấy BASE_URL từ environment variables
-const BASE_URL = process.env.BASE_URL || `http://${process.env.ADDRESS || 'localhost'}:${process.env.PORT || 3000}`;
+// Tách riêng BASE_URL cho subtitle và server
+function getBaseUrl() {
+  const address = process.env.ADDRESS || 'localhost';
+  const port = process.env.PORT || 3000;
+  
+  // Chỉ thêm port nếu không phải port mặc định
+  const portSuffix = (port === 80 || port === 443 || port === '80' || port === '443') 
+    ? '' 
+    : `:${port}`;
+  
+  return `http://${address}${portSuffix}`;
+}
+
+// BASE_URL cho subtitle - có thể custom riêng
+function getSubtitleBaseUrl() {
+  // Nếu có SUBTITLE_BASE_URL riêng, dùng nó
+  if (process.env.SUBTITLE_BASE_URL) {
+    return process.env.SUBTITLE_BASE_URL;
+  }
+  
+  // Nếu có BASE_URL chung, dùng nó
+  if (process.env.BASE_URL) {
+    return process.env.BASE_URL;
+  }
+  
+  // Mặc định dùng BASE_URL tự động
+  return getBaseUrl();
+}
+
+const BASE_URL = process.env.BASE_URL || getBaseUrl();
+const SUBTITLE_BASE_URL = getSubtitleBaseUrl();
 
 function generateSubtitleUrl(
   targetLanguage,
@@ -22,10 +51,7 @@ function generateSubtitleUrl(
   episode,
   provider
 ) {
-  if (!targetLanguage || !imdbid || !season || !episode || !provider) {
-    return "";
-  }
-  return `${BASE_URL}/subtitles/${provider}/${targetLanguage}/${imdbid}/season${season}/${imdbid}-translated-${episode}-1.srt`;
+  return `${SUBTITLE_BASE_URL}/subtitles/${provider}/${targetLanguage}/${imdbid}/season${season}/${imdbid}-translated-${episode}-1.srt`;
 }
 
 const builder = new addonBuilder({
@@ -211,7 +237,7 @@ builder.defineSubtitlesHandler(async function (args) {
         type,
         season,
         episode,
-        foundSubtitle.url.replace(`${BASE_URL}/`, ""),
+        foundSubtitle.url.replace(`${SUBTITLE_BASE_URL}/`, ""),
         targetLanguage
       );
       return Promise.resolve({
@@ -265,7 +291,7 @@ builder.defineSubtitlesHandler(async function (args) {
       type,
       season,
       episode,
-      subtitleUrl.replace(`${BASE_URL}/`, ""),
+      subtitleUrl.replace(`${SUBTITLE_BASE_URL}/`, ""),
       targetLanguage
     );
 
@@ -332,6 +358,7 @@ serveHTTP(builder.getInterface(), {
       `http://${address}:${port}/manifest.json`
     );
     console.log("BASE_URL:", BASE_URL);
+    console.log("SUBTITLE_BASE_URL:", SUBTITLE_BASE_URL);
   })
   .catch((error) => {
     console.error("Server startup error:", error);
