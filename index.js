@@ -201,6 +201,7 @@ builder.defineSubtitlesHandler(async function (args) {
             id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
             url: subtitleUrl,
             lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
+            default: true, // Đánh dấu là phụ đề mặc định
           },
         ],
       });
@@ -236,6 +237,7 @@ builder.defineSubtitlesHandler(async function (args) {
               config.provider
             ),
             lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
+            default: true, // Đánh dấu là phụ đề mặc định
           },
         ],
       });
@@ -263,6 +265,7 @@ builder.defineSubtitlesHandler(async function (args) {
             id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
             url: foundSubtitle.url,
             lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
+            default: true, // Đánh dấu là phụ đề mặc định
           },
         ],
       });
@@ -318,6 +321,7 @@ builder.defineSubtitlesHandler(async function (args) {
           id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
           url: subtitleUrl,
           lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
+          default: true, // Đánh dấu là phụ đề mặc định
         },
       ],
     });
