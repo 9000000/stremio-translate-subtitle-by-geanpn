@@ -198,9 +198,9 @@ builder.defineSubtitlesHandler(async function (args) {
       return Promise.resolve({
         subtitles: [
           {
-            id: `${imdbid}-subtitle`,
+            id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
             url: subtitleUrl,
-            lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
+            lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
           },
         ],
       });
@@ -227,7 +227,7 @@ builder.defineSubtitlesHandler(async function (args) {
       return Promise.resolve({
         subtitles: [
           {
-            id: `${imdbid}-subtitle`,
+            id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
             url: generateSubtitleUrl(
               targetLanguage,
               imdbid,
@@ -235,7 +235,7 @@ builder.defineSubtitlesHandler(async function (args) {
               episode,
               config.provider
             ),
-            lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
+            lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
           },
         ],
       });
@@ -260,9 +260,9 @@ builder.defineSubtitlesHandler(async function (args) {
       return Promise.resolve({
         subtitles: [
           {
-            id: `${imdbid}-subtitle`,
+            id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
             url: foundSubtitle.url,
-            lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
+            lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
           },
         ],
       });
@@ -315,9 +315,9 @@ builder.defineSubtitlesHandler(async function (args) {
     return Promise.resolve({
       subtitles: [
         {
-          id: `${imdbid}-subtitle`,
+          id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
           url: subtitleUrl,
-          lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
+          lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
         },
       ],
     });
