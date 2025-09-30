@@ -137,6 +137,8 @@ const builder = new addonBuilder({
   resources: ["subtitles"],
 });
 
+// Thay thế phần defineSubtitlesHandler trong index.js
+
 builder.defineSubtitlesHandler(async function (args) {
   console.log("Subtitle request received:", args);
   
@@ -152,6 +154,9 @@ builder.defineSubtitlesHandler(async function (args) {
       console.log("Unsupported language:", config.translateto);
       return Promise.resolve({ subtitles: [] });
     }
+
+    // Lấy tên ngôn ngữ để hiển thị
+    const displayLanguageName = getLanguageDisplayName(targetLanguage);
 
     // Extract imdbid from id
     let imdbid = null;
@@ -172,6 +177,7 @@ builder.defineSubtitlesHandler(async function (args) {
     }
 
     const { type, season = null, episode = null } = parseId(id);
+    
     // 1. Check if already exists in database
     const existingSubtitle = await connection.getsubtitles(
       imdbid,
@@ -194,7 +200,7 @@ builder.defineSubtitlesHandler(async function (args) {
           {
             id: `${imdbid}-subtitle`,
             url: subtitleUrl,
-            lang: `${targetLanguage}-translated`,
+            lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
           },
         ],
       });
@@ -229,7 +235,7 @@ builder.defineSubtitlesHandler(async function (args) {
               episode,
               config.provider
             ),
-            lang: `${targetLanguage}-translated`,
+            lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
           },
         ],
       });
@@ -256,7 +262,7 @@ builder.defineSubtitlesHandler(async function (args) {
           {
             id: `${imdbid}-subtitle`,
             url: foundSubtitle.url,
-            lang: foundSubtitle.lang,
+            lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
           },
         ],
       });
@@ -311,7 +317,7 @@ builder.defineSubtitlesHandler(async function (args) {
         {
           id: `${imdbid}-subtitle`,
           url: subtitleUrl,
-          lang: `${targetLanguage}-translated`,
+          lang: displayLanguageName, // Sử dụng tên ngôn ngữ đẹp
         },
       ],
     });
