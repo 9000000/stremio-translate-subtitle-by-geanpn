@@ -22,6 +22,9 @@ function generateSubtitleUrl(
   episode,
   provider
 ) {
+  if (!targetLanguage || !imdbid || !season || !episode || !provider) {
+    return "";
+  }
   return `${BASE_URL}/subtitles/${provider}/${targetLanguage}/${imdbid}/season${season}/${imdbid}-translated-${episode}-1.srt`;
 }
 

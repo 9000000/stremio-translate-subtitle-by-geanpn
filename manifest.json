@@ -33,7 +33,7 @@
       "title": "ChatGPT API Base URL",
       "type": "text",
       "required": false,
-      "default": "https://api.openai.com/v1/responses",
+      "default": "https://api.openai.com/v1/chat/completions",
       "dependencies": [
         {
           "key": "provider",
@@ -62,7 +62,7 @@
       "options": ["English"]
     }
   ],
-  "description": "This addon takes subtitles from OpenSubtitlesV3 then translates into desired language using Google Translate, or ChatGPT. For donations:in progress Bug report: geanpn@gmail.com",
+  "description": "This addon fetches subtitles from OpenSubtitlesV3 and translates them into the desired language using Google Translate or ChatGPT. Donations: in progress. Bug report: geanpn@gmail.com",
   "types": ["series", "movie"],
   "catalogs": [],
   "resources": ["subtitles"]

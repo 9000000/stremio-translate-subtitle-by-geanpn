@@ -1,8 +1,19 @@
 const googleLanguages = require("./langs/translateGoogleFree.lang.json");
 const chatgptLanguages = require("./langs/translateChatGpt.lang.json");
 
-function getValueFromKey(key) {
-  return data[key];
+function getValueFromKey(key, provider) {
+  let langMap;
+  switch (provider) {
+    case "Google Translate":
+      langMap = googleLanguages;
+      break;
+    case "ChatGPT API":
+      langMap = chatgptLanguages;
+      break;
+    default:
+      throw new Error("Provider not found");
+  }
+  return langMap[key];
 }
 
 function getKeyFromValue(value, provider) {
@@ -26,8 +37,19 @@ function getKeyFromValue(value, provider) {
   return null;
 }
 
-function getAllValues() {
-  return Object.values(data);
+function getAllValues(provider) {
+  let langMap;
+  switch (provider) {
+    case "Google Translate":
+      langMap = googleLanguages;
+      break;
+    case "ChatGPT API":
+      langMap = chatgptLanguages;
+      break;
+    default:
+      throw new Error("Provider not found");
+  }
+  return Object.values(langMap);
 }
 
 module.exports = {
