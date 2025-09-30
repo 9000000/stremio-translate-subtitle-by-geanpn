@@ -18,6 +18,17 @@ function getLanguageDisplayName(isoCode) {
   return languageDisplayNames[isoCode] || isoCode;
 }
 
+// Helper function to convert ISO code to 3-letter format for better Stremio compatibility
+function getStremioLanguageCode(isoCode) {
+  // Reverse mapping: tìm mã 3 chữ cái từ mã 2 chữ cái
+  for (const [threeLetterCode, twoLetterCode] of Object.entries(isoCodeMapping)) {
+    if (twoLetterCode === isoCode) {
+      return threeLetterCode;
+    }
+  }
+  return isoCode;
+}
+
 // Tách riêng BASE_URL cho subtitle và server
 function getBaseUrl() {
   const address = process.env.ADDRESS || 'localhost';
@@ -137,8 +148,6 @@ const builder = new addonBuilder({
   resources: ["subtitles"],
 });
 
-// Thay thế phần defineSubtitlesHandler trong index.js
-
 builder.defineSubtitlesHandler(async function (args) {
   console.log("Subtitle request received:", args);
   
@@ -157,6 +166,11 @@ builder.defineSubtitlesHandler(async function (args) {
 
     // Lấy tên ngôn ngữ để hiển thị
     const displayLanguageName = getLanguageDisplayName(targetLanguage);
+    
+    // Lấy mã ngôn ngữ 3 chữ cái cho Stremio (tương thích tốt hơn)
+    const stremioLanguageCode = getStremioLanguageCode(targetLanguage);
+
+    console.log(`Language mapping: ${config.translateto} -> ${targetLanguage} -> ${stremioLanguageCode} (${displayLanguageName})`);
 
     // Extract imdbid from id
     let imdbid = null;
@@ -198,10 +212,9 @@ builder.defineSubtitlesHandler(async function (args) {
       return Promise.resolve({
         subtitles: [
           {
-            id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
+            id: stremioLanguageCode, // Dùng mã 3 chữ cái
             url: subtitleUrl,
-            lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
-            default: true, // Đánh dấu là phụ đề mặc định
+            lang: displayLanguageName, // Tên ngôn ngữ hiển thị đẹp
           },
         ],
       });
@@ -228,7 +241,7 @@ builder.defineSubtitlesHandler(async function (args) {
       return Promise.resolve({
         subtitles: [
           {
-            id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
+            id: stremioLanguageCode,
             url: generateSubtitleUrl(
               targetLanguage,
               imdbid,
@@ -236,8 +249,7 @@ builder.defineSubtitlesHandler(async function (args) {
               episode,
               config.provider
             ),
-            lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
-            default: true, // Đánh dấu là phụ đề mặc định
+            lang: displayLanguageName,
           },
         ],
       });
@@ -262,10 +274,9 @@ builder.defineSubtitlesHandler(async function (args) {
       return Promise.resolve({
         subtitles: [
           {
-            id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
+            id: stremioLanguageCode,
             url: foundSubtitle.url,
-            lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
-            default: true, // Đánh dấu là phụ đề mặc định
+            lang: displayLanguageName,
           },
         ],
       });
@@ -318,10 +329,9 @@ builder.defineSubtitlesHandler(async function (args) {
     return Promise.resolve({
       subtitles: [
         {
-          id: targetLanguage, // Sử dụng ISO code để Stremio tự động chọn
+          id: stremioLanguageCode,
           url: subtitleUrl,
-          lang: displayLanguageName, // Hiển thị tên ngôn ngữ đẹp
-          default: true, // Đánh dấu là phụ đề mặc định
+          lang: displayLanguageName,
         },
       ],
     });
