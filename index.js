@@ -29,7 +29,12 @@ function getBaseUrl() {
 function getSubtitleBaseUrl() {
   // Nếu có SUBTITLE_BASE_URL riêng, dùng nó
   if (process.env.SUBTITLE_BASE_URL) {
-    return process.env.SUBTITLE_BASE_URL;
+    let url = process.env.SUBTITLE_BASE_URL;
+    // Tự động thêm http:// nếu không có protocol
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'http://' + url;
+    }
+    return url;
   }
   
   // Nếu có BASE_URL chung, dùng nó
@@ -128,39 +133,39 @@ const builder = new addonBuilder({
 
 builder.defineSubtitlesHandler(async function (args) {
   console.log("Subtitle request received:", args);
-  const { id, config, stream } = args;
-
-  const targetLanguage = languages.getKeyFromValue(
-    config.translateto,
-    config.provider
-  );
-
-  if (!targetLanguage) {
-    console.log("Unsupported language:", config.translateto);
-    return Promise.resolve({ subtitles: [] });
-  }
-
-  // Extract imdbid from id
-  let imdbid = null;
-  if (id.startsWith("dcool-")) {
-    imdbid = "tt5994346";
-  } else if (id !== null && id.startsWith("tt")) {
-    const parts = id.split(":");
-    if (parts.length >= 1) {
-      imdbid = parts[0];
-    } else {
-      console.log("Invalid ID format.");
-    }
-  }
-
-  if (imdbid === null) {
-    console.log("Invalid ID format.");
-    return Promise.resolve({ subtitles: [] });
-  }
-
-  const { type, season = null, episode = null } = parseId(id);
-
+  
   try {
+    const { id, config, stream } = args;
+
+    const targetLanguage = languages.getKeyFromValue(
+      config.translateto,
+      config.provider
+    );
+
+    if (!targetLanguage) {
+      console.log("Unsupported language:", config.translateto);
+      return Promise.resolve({ subtitles: [] });
+    }
+
+    // Extract imdbid from id
+    let imdbid = null;
+    if (id.startsWith("dcool-")) {
+      imdbid = "tt5994346";
+    } else if (id !== null && id.startsWith("tt")) {
+      const parts = id.split(":");
+      if (parts.length >= 1) {
+        imdbid = parts[0];
+      } else {
+        console.log("Invalid ID format.");
+      }
+    }
+
+    if (imdbid === null) {
+      console.log("Invalid ID format.");
+      return Promise.resolve({ subtitles: [] });
+    }
+
+    const { type, season = null, episode = null } = parseId(id);
     // 1. Check if already exists in database
     const existingSubtitle = await connection.getsubtitles(
       imdbid,
@@ -344,6 +349,20 @@ if (process.env.PUBLISH_IN_STREMIO_STORE == "TRUE") {
 
 const port = process.env.PORT || 3000;
 const address = process.env.ADDRESS || "0.0.0.0";
+
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise);
+  console.error('Reason:', reason);
+  if (reason && reason.stack) {
+    console.error('Stack:', reason.stack);
+  }
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  console.error('Stack:', error.stack);
+});
 
 serveHTTP(builder.getInterface(), {
   cacheMaxAge: 10,
